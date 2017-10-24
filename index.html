@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>BTTV | Better Twitch TV</title>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script><!-- https://github.com/mzabriskie/axios -->
+
+    <!--development mode-->
+    <!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+
+    <!--production mode-->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+    div.details {
+        text-align: center;
+    }
+    div.details p {
+        margin-bottom: 1px;
+        font-size: 10px;
+    }
+    div.details h3 {
+        font-size: 16px;
+    }
+    .thumbnail {
+        -webkit-box-shadow: 0px 0px 8px -3px rgba(0,0,0,0.75);
+        -moz-box-shadow: 0px 0px 8px -3px rgba(0,0,0,0.75);
+        box-shadow: 0px 0px 8px -3px rgba(0,0,0,0.75);
+    }
+    </style>
+</head>
+
+<body>
+    <div id="root" class="container">
+
+        <h1>BTTV Emotes</h1>
+
+        <div class="row">
+
+            <div class="col-md-12">
+
+                <div class="panel panel-default">
+
+                    <div class="panel-heading">Search by Channel</div>
+
+                    <div class="panel-body">
+
+                        <p>
+                            <input class="form-control" type="text" v-model="search" placeholder="broadcaster">
+                        </p>
+
+                        <p>
+                            <input type="button" value="fetch" v-on:click="getEmotes()">
+                            <span v-if="message.empty">The search field is empty, try again.</span>
+                            <span v-if="message.loading">fetching emotes...</span>
+                            <span>{{ message.error }}</span>
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-md-12">
+
+                <div class="row">
+
+                    <div class="col-md-2" v-for="emote in emotes">
+
+                        <div class="thumbnail">
+
+                            <img :src="'http://cdn.betterttv.net/emote/' + emote.id + '/3x'" :alt="emote.code">
+
+                            <div class="caption">
+
+                                <div class="details">
+
+                                    <h3>{{emote.code}}</h3>
+
+                                    <p>{{emote.channel}}</p>
+
+                                    <p>{{emote.id}}</p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+    new Vue({
+        el: '#root',
+        data: {
+            emotes: [],
+            search: '',
+            message: {
+                empty: false,
+                loading: false,
+                error: ''
+            }
+        },
+        methods: {
+            getEmotes: function() {
+                if(this.search) {
+                    let self = this
+                    this.message.empty = false
+                    this.message.loading = true
+                    this.message.error = ''
+                    axios.get('https://api.betterttv.net/2/channels/'+this.search)
+                    .then(response => {
+                        self.emotes = response.data.emotes
+                        self.message.loading = false
+                    })
+                    .catch(function (error) {
+                        self.message.error = error.response.data.message
+                        self.message.loading = false
+                    })
+                } else {
+                    this.message.empty = true
+                    this.message.error = ''
+                }
+            }
+        }
+
+    });
+    </script>
+    <script
+    src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+    crossorigin="anonymous"></script>
+    <script
+    src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+    integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+    crossorigin="anonymous"></script>
+</body>
+</html>
